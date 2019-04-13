@@ -37,15 +37,16 @@ def plot_reward(folder, game, name, num_steps, bin_size=10, smooth=1, time=None,
 
     return np.round(np.mean(ty[-10]))
 
-# env_ids = [env + 'NoFrameskip-v4' for env in ['AirRaid', 'Assault', 'Carnival', 'DemonAttack']]
-env_ids = [env + 'NoFrameskip-v4' for env in ['Assault', 'AirRaid', 'DemonAttack', 'Carnival']]
 
-plt.figure()
-matplotlib.rcParams.update({'font.size': 13})
-matplotlib.pyplot.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.2, hspace=0.3)
-for idx, env_id in enumerate(env_ids):
-    log_dir = 'log/' + env_id + '/'
-    plt.subplot(2, 2, idx+1)
-    plot_reward(log_dir, env_id[:-14], 'DQN', 1000000, bin_size=10, smooth=1)
-plt.show()
+if __name__ == '__main__':
 
+    env_ids = [env + 'NoFrameskip-v4' for env in ['Assault', 'AirRaid', 'DemonAttack', 'Carnival']]
+
+    plt.figure()
+    matplotlib.rcParams.update({'font.size': 13})
+    matplotlib.pyplot.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.2, hspace=0.3)
+    for idx, env_id in enumerate(env_ids):
+        log_dir = 'log/' + env_id + '/'
+        plt.subplot(2, 2, idx+1)
+        plot_reward(log_dir, env_id[:-14], 'DQN', 1000000, bin_size=10, smooth=1)
+    plt.show()
