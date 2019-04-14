@@ -1,1 +1,1 @@
-CUDA_VISIBLE_DEVICES=0 python DQN_train.py DemonAttackNoFrameskip-v4
+CUDA_VISIBLE_DEVICES=0 python DQN_train.py

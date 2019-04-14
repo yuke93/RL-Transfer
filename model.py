@@ -1,17 +1,10 @@
-import gym
-import random
-import pickle
-import os.path
-import math
-import glob
+import os, sys, shutil
+import os.path as osp
+import gym, random, pickle, os.path, math, glob
 import numpy as np
 
 from datetime import timedelta
 from timeit import default_timer as timer
-
-import matplotlib
-# %matplotlib inline
-from IPython.display import clear_output
 
 import torch
 import torch.optim as optim
@@ -23,7 +16,6 @@ from utils.hyperparameters import Config
 from utils.plot import plot_reward
 
 from agents.BaseAgent import BaseAgent
-
 
 class ExperienceReplayMemory:
     def __init__(self, capacity):
@@ -49,8 +41,7 @@ class DQN(nn.Module):
         self.input_shape = input_shape
         self.num_actions = num_actions
 
-        self.conv1 = nn.Conv2d(
-            self.input_shape[0], 32, kernel_size=8, stride=4)
+        self.conv1 = nn.Conv2d(self.input_shape[0], 32, kernel_size=8, stride=4)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=4, stride=2)
         self.conv3 = nn.Conv2d(64, 64, kernel_size=3, stride=1)
 
@@ -123,17 +114,13 @@ class Model(BaseAgent):
         # random transition batch is taken from experience replay memory
         transitions, indices, weights = self.memory.sample(self.batch_size)
 
-        batch_state, batch_action, batch_reward, batch_next_state = zip(
-            *transitions)
+        batch_state, batch_action, batch_reward, batch_next_state = zip(*transitions)
 
         shape = (-1,) + self.num_feats
 
-        batch_state = torch.tensor(
-            batch_state, device=self.device, dtype=torch.float).view(shape)
-        batch_action = torch.tensor(
-            batch_action, device=self.device, dtype=torch.long).squeeze().view(-1, 1)
-        batch_reward = torch.tensor(
-            batch_reward, device=self.device, dtype=torch.float).squeeze().view(-1, 1)
+        batch_state = torch.tensor(batch_state, device=self.device, dtype=torch.float).view(shape)
+        batch_action = torch.tensor(batch_action, device=self.device, dtype=torch.long).squeeze().view(-1, 1)
+        batch_reward = torch.tensor(batch_reward, device=self.device, dtype=torch.float).squeeze().view(-1, 1)
 
         non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch_next_state)), device=self.device,
                                       dtype=torch.uint8)
@@ -155,13 +142,10 @@ class Model(BaseAgent):
 
         # target
         with torch.no_grad():
-            max_next_q_values = torch.zeros(
-                self.batch_size, device=self.device, dtype=torch.float).unsqueeze(dim=1)
+            max_next_q_values = torch.zeros(self.batch_size, device=self.device, dtype=torch.float).unsqueeze(dim=1)
             if not empty_next_state_values:
-                max_next_action = self.get_max_next_state_action(
-                    non_final_next_states)
-                max_next_q_values[non_final_mask] = self.target_model(
-                    non_final_next_states).gather(1, max_next_action)
+                max_next_action = self.get_max_next_state_action(non_final_next_states)
+                max_next_q_values[non_final_mask] = self.target_model(non_final_next_states).gather(1, max_next_action)
             expected_q_values = batch_reward + self.gamma * max_next_q_values
 
         diff = (expected_q_values - current_q_values)
