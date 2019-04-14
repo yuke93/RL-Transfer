@@ -28,6 +28,8 @@ class BaseAgent(object):
         return 0.5 * x.pow(2)
 
     def save_w(self, name='model'):
+        if not osp.exists('saved_agents'):
+            os.mkdir('saved_agents')
         torch.save(self.model.state_dict(), './saved_agents/{}.dump'.format(name))
         torch.save(self.optimizer.state_dict(), './saved_agents/{}_optim.dump'.format(name))
     

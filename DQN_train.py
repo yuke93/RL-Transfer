@@ -13,7 +13,6 @@ from timeit import default_timer as timer
 
 import matplotlib
 # %matplotlib inline
-from IPython.display import clear_output
 
 import torch
 import torch.optim as optim
@@ -99,12 +98,13 @@ if __name__ == '__main__':
                 episode_reward = 0
 
             if frame_idx % 1000 == 0:
-                print('Frame: {}'.format(frame_idx), end='\r')
+                print('Frame: {}'.format(frame_idx))
 
-            if frame_idx % 10000 == 0:
+            if frame_idx % 1000 == 0:
+            # if frame_idx % 100 == 0:
                 try:
-                    clear_output(True)
                     save_filename = osp.join(log_dir, env_id, env_id+'.png')
+                    print("plot_reward", frame_idx)
                     plot_reward(log_dir, env_id, 'DQN', config.MAX_FRAMES, bin_size=10, smooth=1,
                                 time=timedelta(seconds=int(timer()-start)), ipynb=False, save_filename=save_filename)
                 except IOError:

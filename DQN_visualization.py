@@ -49,4 +49,3 @@ if __name__ == '__main__':
         log_dir = 'log/' + env_id + '/'
         plt.subplot(2, 2, idx+1)
         plot_reward(log_dir, env_id[:-14], 'DQN', 1000000, bin_size=10, smooth=1)
-    plt.show()

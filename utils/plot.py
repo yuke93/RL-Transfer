@@ -2,7 +2,9 @@ import numpy as np
 
 # switch backend in driver file
 import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+plt.ioff()
 
 import os
 import glob
@@ -167,7 +169,6 @@ def visdom_plot(viz, win, folder, game, name, num_steps, bin_size=100, smooth=1)
 
     plt.title(game)
     plt.legend(loc=4)
-    plt.show()
     plt.draw()
 
     image = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
@@ -201,7 +202,6 @@ def plot(folder, game, name, num_steps, bin_size=100, smooth=1):
 
     plt.title(game)
     plt.legend(loc=4)
-    plt.show()
 
 
 def make_patch_spines_invisible(ax):
@@ -316,7 +316,7 @@ def plot_all_data(folder, game, name, num_steps, bin_size=(10, 100, 100, 1), smo
     plt.tight_layout()  # prevent label cutoff
 
     if ipynb:
-        plt.show()
+        pass
     else:
         plt.savefig(save_filename)
     plt.clf()
@@ -328,10 +328,8 @@ def plot_all_data(folder, game, name, num_steps, bin_size=(10, 100, 100, 1), smo
 def plot_reward(folder, game, name, num_steps, bin_size=10, smooth=1, time=None, save_filename='results.png', ipynb=False):
     matplotlib.rcParams.update({'font.size': 20})
     tx, ty = load_reward_data(folder, smooth, bin_size)
-
     if tx is None or ty is None:
         return
-
     fig = plt.figure(figsize=(20, 5))
     plt.plot(tx, ty, label="{}".format(name))
 
@@ -350,10 +348,8 @@ def plot_reward(folder, game, name, num_steps, bin_size=10, smooth=1, time=None,
     else:
         plt.title(game + ' || Last 10: ' + str(np.round(np.mean(ty[-10]))))
     plt.legend(loc=4)
-    if ipynb:
-        plt.show()
-    else:
-        plt.savefig(save_filename)
+    print("I am here", save_filename)
+    plt.savefig(save_filename)
     plt.clf()
     plt.close()
 
