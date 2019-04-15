@@ -53,9 +53,10 @@ if __name__ == '__main__':
 
     #env_id = "PongNoFrameskip-v4"
     #env_id = "AirRaidNoFrameskip-v4"
-    env_id = "AssaultNoFrameskip-v4"
     #env_id = "CarnivalNoFrameskip-v4"
     #env_id = "DemonAttackNoFrameskip-v4"
+
+    env_id = "AssaultNoFrameskip-v4"
     print('Init env: ' + env_id)
 
     # log_dir = "/tmp/gym/"
