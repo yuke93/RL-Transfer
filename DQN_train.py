@@ -59,6 +59,10 @@ config.UPDATE_FREQ = 1  # 1
 config.loss_type='KL'
 config.KL_TAO = 0.01
 
+# for validation
+config.VALID_INTERVAL = 50
+config.VALID_EPISODES = 2
+
 
 if __name__ == '__main__':
 
@@ -72,13 +76,19 @@ if __name__ == '__main__':
     env_name_list = [valid_env_name_list[i] for i in env_names]
 
     log_dir_list = list()
+    student_dir = 'student_'
+    student_dir = osp.join('log', student_dir)
     for env_name in env_name_list:
         print('Init env: ' + env_name)
         log_dir = osp.join('log', env_name)
+        student_dir += env_name[:3]
         if not osp.exists(log_dir):
             os.makedirs(log_dir)
         log_dir_list.append(log_dir)
-        
+
+    # make student dir
+    if not osp.exists(student_dir):
+        os.makedirs(student_dir)
     
     env_list = list()
     for i, env_name in enumerate(env_name_list):
@@ -89,7 +99,19 @@ if __name__ == '__main__':
                             clip_rewards=True, frame_stack=False, scale=True)
         env = WrapPyTorch(env)
         env_list.append( (env_name, env) )
-    
+
+    # make student env
+    student_env_list = list()
+    for i, env_name in enumerate(env_name_list):
+        env = make_atari(env_name)
+        env = bench.Monitor(env, os.path.join(student_dir, env_name))
+        env = wrap_deepmind(env, episode_life=True,
+                            clip_rewards=True, frame_stack=False, scale=True)
+        env = WrapPyTorch(env)
+        student_env_list.append( (env_name, env) )
+
+    # next validation frame for each game
+    next_valid_frames = [config.VALID_INTERVAL] * len(env_names)
 
     gpu_id = 0
     with torch.cuda.device(gpu_id):
@@ -145,8 +167,31 @@ if __name__ == '__main__':
                         except IOError:
                             pass
                     '''
-                
                 num_frames += config.EACH_MAX_FRAMES
+
+                # validation
+                if num_frames >= next_valid_frames[env_id]:
+                    print('[Validation] env_id: {}, No. frame: {}'.format(env_id, num_frames))
+                    num_done = 0
+                    valid_env = student_env_list[env_id][1]
+                    valid_observation = valid_env.reset()
+                    valid_reward_list = []
+                    valid_episode_reward = 0.
+                    while num_done < config.VALID_EPISODES:
+                        _, valid_action = model.get_policy_Q(observation, env_id)
+                        observation, reward, done, _ = env.step(action)
+                        valid_episode_reward += reward
+                        # print(reward, done)
+                        if done:
+                            observation = valid_env.reset()
+                            num_done += 1
+                            valid_reward_list.append(valid_episode_reward)
+                            valid_episode_reward = 0.
+                    valid_mean_reward = np.asarray(valid_reward_list).mean()
+                    model.save_val_res(student_dir, env_name, num_frames, valid_mean_reward)
+                    next_valid_frames[env_id] += config.VALID_INTERVAL
+
+                # complete
                 if num_frames >= config.MAX_FRAMES:
                     complete[env_id] = True
                     model.save_w(env_name)

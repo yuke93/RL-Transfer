@@ -152,6 +152,14 @@ class Multi_Agent(nn.Module):
             action = np.argmax(Q.squeeze())
             return Q, action
 
+    def get_policy_Q(self, s, env_id):
+        """ get Q and action from self.model """
+        with torch.no_grad():
+            X = torch.tensor([s], device=self.device, dtype=torch.float)
+            Q = self.model(X, env_id).cpu().numpy()
+            action = np.argmax(Q.squeeze())
+            return Q, action
+
     def prep_minibatch(self, env_id):
         # random transition batch is taken from experience replay memory
         transitions = self.memory_list[env_id].sample(self.batch_size)
@@ -236,6 +244,10 @@ class Multi_Agent(nn.Module):
         with open(os.path.join(self.log_dir_list[env_id], 'td.csv'), 'a') as f:
             writer = csv.writer(f)
             writer.writerow((tstep, td))
+
+    def save_val_res(self, log_dir, env_name, num_frame, reward):
+        with open(osp.join(log_dir, env_name+'val_log.txt'), 'a') as f:
+            f.write('{}, {} \n'.format(num_frame, reward))
 
     def save_w(self, name='model'):
         if not osp.exists('saved_agents'):

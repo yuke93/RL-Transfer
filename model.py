@@ -328,6 +328,14 @@ class Multi_Agent(nn.Module):
             action = np.argmax(Q.squeeze())
             return Q, action
 
+    def get_policy_Q(self, s, env_id):
+        """ get Q and action from self.model """
+        with torch.no_grad():
+            X = torch.tensor([s], device=self.device, dtype=torch.float)
+            Q = self.model(X, env_id).cpu().numpy()
+            action = np.argmax(Q.squeeze())
+            return Q, action
+
     def prep_minibatch(self, env_id):
         # random transition batch is taken from experience replay memory
         transitions = self.memory_list[env_id].sample(self.batch_size)
