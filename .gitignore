@@ -2,3 +2,4 @@ saved_agents/
 temp/
 log/
 __pycache__/
+pretrained_weights/

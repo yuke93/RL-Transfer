@@ -1,1 +1,1 @@
-CUDA_VISIBLE_DEVICES=0 python DQN_train.py
+CUDA_VISIBLE_DEVICES=4 python DQN_train.py
