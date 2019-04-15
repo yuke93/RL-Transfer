@@ -50,18 +50,18 @@ config.EXP_REPLAY_SIZE = 10000  # 100000
 config.BATCH_SIZE = 32
 
 # Learning control variables
-config.LEARN_START = 500  # 10000
+config.LEARN_START = 5000  # 10000
 # config.MAX_FRAMES = 500000
-config.MAX_FRAMES = 5000
-config.EACH_MAX_FRAMES = 1000
+config.MAX_FRAMES = 500000
+config.EACH_MAX_FRAMES = 5000
 config.UPDATE_FREQ = 1  # 1
 
 config.loss_type='KL'
 config.KL_TAO = 0.01
 
 # for validation
-config.VALID_INTERVAL = 50
-config.VALID_EPISODES = 2
+config.VALID_INTERVAL = 10000
+config.VALID_EPISODES = 5
 
 
 if __name__ == '__main__':
@@ -157,16 +157,7 @@ if __name__ == '__main__':
                     if frame_idx % 1000 == 0:
                         print('{}, Frame: {}'.format(env_name, frame_idx))
 
-                    '''
-                    if frame_idx % 10000 == 0:
-                        try:
-                            save_filename = osp.join(log_dir, env_name+'results.png')
-                            clear_output(True)
-                            plot_reward(log_dir, env_name, 'DQN', config.MAX_FRAMES, bin_size=10, smooth=1,
-                                        time=timedelta(seconds=int(timer()-start)), save_filename=save_filename)
-                        except IOError:
-                            pass
-                    '''
+
                 num_frames += config.EACH_MAX_FRAMES
 
                 # validation
