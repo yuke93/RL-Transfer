@@ -170,7 +170,7 @@ if __name__ == '__main__':
                     valid_episode_reward = 0.
                     while num_done < config.VALID_EPISODES:
                         _, valid_action = model.get_policy_Q(observation, env_id)
-                        observation, reward, done, _ = env.step(action)
+                        observation, reward, done, _ = valid_env.step(action)
                         valid_episode_reward += reward
                         # print(reward, done)
                         if done:
