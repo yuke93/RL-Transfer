@@ -87,43 +87,53 @@ class DQN_multi(nn.Module):
 
 class Multi_Agent(nn.Module):
 
-    def __init__(self, env_list, config, log_dir_list):
+    def __init__(self, env_list, config, log_dir_list, mode='train'):
 
         super(Multi_Agent, self).__init__()
 
-        self.log_dir_list = log_dir_list
-        self.env_list = env_list
-        self.num_feats_list = [
-            env.observation_space.shape for _, env in env_list]
-        self.num_actions_list = [env.action_space.n for _, env in env_list]
+        if mode == 'test':
+            self.env_list = env_list
+            self.device = config.device
+            self.model = DQN_multi(self.env_list)
+            self.model = self.model.to(self.device)
 
-        self.lr = config.LR
-        self.device = config.device
-        self.gamma = config.GAMMA
-        self.target_net_update_freq = config.TARGET_NET_UPDATE_FREQ
-        self.experience_replay_size = config.EXP_REPLAY_SIZE
-        self.batch_size = config.BATCH_SIZE
-        self.learn_start = config.LEARN_START
-        self.update_freq = config.UPDATE_FREQ
+        elif mode == 'train':
+            self.log_dir_list = log_dir_list
+            self.env_list = env_list
+            self.num_feats_list = [
+                env.observation_space.shape for _, env in env_list]
+            self.num_actions_list = [env.action_space.n for _, env in env_list]
 
-        # loss related
-        self.loss_type = config.loss_type
-        self.kl_tao = config.KL_TAO
+            self.lr = config.LR
+            self.device = config.device
+            self.gamma = config.GAMMA
+            self.target_net_update_freq = config.TARGET_NET_UPDATE_FREQ
+            self.experience_replay_size = config.EXP_REPLAY_SIZE
+            self.batch_size = config.BATCH_SIZE
+            self.learn_start = config.LEARN_START
+            self.update_freq = config.UPDATE_FREQ
 
-        self.rewards = list()
+            # loss related
+            self.loss_type = config.loss_type
+            self.kl_tao = config.KL_TAO
 
-        # load teacher model
-        self.load_teacher_model()
-        # build model
-        self.model = DQN_multi(self.env_list)
-        # optimizer
-        self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
+            self.rewards = list()
 
-        self.model = self.model.to(self.device)
-        for teacher_model in self.teacher_model_list:
-            teacher_model = teacher_model.to(self.device)
+            # load teacher model
+            self.load_teacher_model()
+            # build model
+            self.model = DQN_multi(self.env_list)
+            # optimizer
+            self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
 
-        self.declare_memory()
+            self.model = self.model.to(self.device)
+            for teacher_model in self.teacher_model_list:
+                teacher_model = teacher_model.to(self.device)
+
+            self.declare_memory()
+
+        else:
+            raise ValueError('Invalid mode {}'.format(mode))
 
     def load_teacher_model(self):
         self.teacher_model_list = list()
@@ -137,6 +147,12 @@ class Multi_Agent(nn.Module):
             for param in model.parameters():
                 param.requires_grad = False
             self.teacher_model_list.append(model)
+
+    def load_student_model(self, student_path, env_id):
+        env_name = self.env_list[env_id][0]
+        student_weights = osp.join(student_path, env_name + '.dump')
+        self.model.load_state_dict(torch.load(student_weights))
+        print('Student model loaded from {}'.format(student_weights))
 
     def declare_memory(self):
         self.memory_list = list()
