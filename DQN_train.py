@@ -50,10 +50,10 @@ config.EXP_REPLAY_SIZE = 10000  # 100000
 config.BATCH_SIZE = 32
 
 # Learning control variables
-config.LEARN_START = 5000  # 10000
+config.LEARN_START = 500  # 10000
 # config.MAX_FRAMES = 500000
-config.MAX_FRAMES = 500000
-config.EACH_MAX_FRAMES = 5000
+config.MAX_FRAMES = 5000
+config.EACH_MAX_FRAMES = 500
 config.UPDATE_FREQ = 1  # 1
 
 config.loss_type='KL'
@@ -168,7 +168,7 @@ if __name__ == '__main__':
                     valid_observation = valid_env.reset()
                     valid_reward_list = []
                     valid_episode_reward = 0.
-                    while num_done < config.VALID_EPISODES:
+                    while num_done <= config.VALID_EPISODES:
                         _, valid_action = model.get_policy_Q(valid_observation, env_id)
                         valid_observation, valid_reward, done, _ = valid_env.step(valid_action)
                         valid_episode_reward += valid_reward

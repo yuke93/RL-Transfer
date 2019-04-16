@@ -237,7 +237,7 @@ class Multi_Agent(nn.Module):
         z = (x-y)
         return 0.5 * z.pow(2)
     
-    def KL(self, input, target):
+    def KL(self, target, input):
         target = target / self.kl_tao
         target = F.softmax(target, dim=1)
         input = F.softmax(input, dim=1)
