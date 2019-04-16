@@ -169,12 +169,12 @@ if __name__ == '__main__':
                     valid_reward_list = []
                     valid_episode_reward = 0.
                     while num_done < config.VALID_EPISODES:
-                        _, valid_action = model.get_policy_Q(observation, env_id)
-                        observation, reward, done, _ = valid_env.step(action)
-                        valid_episode_reward += reward
+                        _, valid_action = model.get_policy_Q(valid_observation, env_id)
+                        valid_observation, valid_reward, done, _ = valid_env.step(valid_action)
+                        valid_episode_reward += valid_reward
                         # print(reward, done)
                         if done:
-                            observation = valid_env.reset()
+                            valid_observation = valid_env.reset()
                             num_done += 1
                             valid_reward_list.append(valid_episode_reward)
                             valid_episode_reward = 0.
