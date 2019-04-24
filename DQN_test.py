@@ -1,4 +1,5 @@
 import os
+import sys
 import os.path as osp
 import gym
 import glob
@@ -30,7 +31,7 @@ if __name__ == '__main__':
     valid_env_name_list = ["AirRaidNoFrameskip-v4", "CarnivalNoFrameskip-v4",
                            "DemonAttackNoFrameskip-v4", "AssaultNoFrameskip-v4"]
 
-    env_names = [0, 3]
+    env_names = [int(sys.argv[1]), int(sys.argv[2])]
     env_name_list = [valid_env_name_list[i] for i in env_names]
 
     # make student env
@@ -41,14 +42,14 @@ if __name__ == '__main__':
         env = wrap_deepmind(env, episode_life=True,
                             clip_rewards=False, frame_stack=False, scale=True)
         env = WrapPyTorch(env)
-        student_env_list.append((env_name, env))
+        student_env_list.append((env_name, env, None))
 
     gpu_id = 0
     with torch.cuda.device(gpu_id):
 
         model = Multi_Agent(env_list=student_env_list, config=config, log_dir_list=[], mode='test')
 
-        for env_id, (env_name, test_env) in enumerate(student_env_list):
+        for env_id, (env_name, test_env, _) in enumerate(student_env_list):
             # load model
             model.load_student_model(student_path, env_id)
 
