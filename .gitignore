@@ -1,3 +1,6 @@
 saved_agents/
 temp/
 log/
+pretrained_weights/
+ipynb/
+__pycache__/
